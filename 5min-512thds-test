@@ -11,18 +11,6 @@ time=300
 lua=/usr/share/sysbench/oltp_point_select.lua
 jemalloc=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2
 
-function prep
-	{
-	service mysql restart
-	mysql -u $user -h $host --password=$pass -e "DROP DATABASE sysbench;"
-	mysql -u $user -h $host --password=$pass -e "CREATE DATABASE sysbench;"
-
-  	sysbench $lua --db-driver=mysql \
-  	--mysql-storage-engine=InnoDB  --table-size=$rows --tables=$tables \
-  	--mysql-user=$user --mysql-password=$pass --mysql-host=$host --mysql-port=$port --mysql-db=$db \
-  	--events=0 --threads=8 prepare
-	}
-
 function run
 	{
   	LD_PRELOAD=$jemalloc sysbench $lua --db-driver=mysql \
