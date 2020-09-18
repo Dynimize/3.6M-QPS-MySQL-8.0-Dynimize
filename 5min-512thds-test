@@ -20,12 +20,6 @@ function run
   	--events=0 $3 $4 $5 run
 	}
 
-function warmup
-	{
- 	printf "\nPERFORMING WARMUP\n"
-	run 512 $time 
-	}
-
 ulimit -n 10000
 
 printf "\nWITHOUT SYSBENCH DYNIMIZED\n"
