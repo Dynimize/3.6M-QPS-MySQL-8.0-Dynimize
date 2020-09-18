@@ -22,15 +22,6 @@ function prep
   	--events=0 --threads=8 prepare
 	}
 
-function run
-	{
-  	LD_PRELOAD=$jemalloc sysbench $lua --db-driver=mysql \
-   	--table-size=$rows --tables=$tables --threads=$1 --time=$2 \
-  	--rate=0 --report-interval=1 --rand-type=uniform  --rand-seed=1  \
-  	--mysql-user=$user --mysql-password=$pass --mysql-host=$host --mysql-port=$port --mysql-db=$db \
-  	--events=0 $3 $4 $5 run
-	}
-
 ulimit -n 10000
 
 prep
