@@ -1,0 +1,58 @@
+#!/bin/bash
+
+user=root
+pass=root
+host=127.0.0.1
+port=3306
+db=sysbench
+rows=10000000
+tables=8
+time=300
+lua=/usr/share/sysbench/oltp_point_select.lua
+jemalloc=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2
+#connect="--mysql-host=$host --mysql-port=$port"
+connect="--mysql-socket=/run/mysqld/mysqld.sock"
+
+function run
+	{
+  	LD_PRELOAD=$jemalloc sysbench $lua --db-driver=mysql \
+   	--table-size=$rows --tables=$tables --threads=$1 --time=$2 \
+  	--rate=0 --report-interval=1 --rand-type=uniform  --rand-seed=1  \
+  	--mysql-user=$user --mysql-password=$pass $connect --mysql-db=$db \
+  	--events=0 $3 $4 $5 run
+	}
+
+function runAll
+	{
+	printf "\nPERFORMING MEASUREMENTS\n"
+
+	for c in 1 2 4 8 16 32 64 128 256 512 1024
+	do
+        	run $c $time 
+        	sleep 60
+	done 	
+	}
+
+function warmup
+	{
+ 	printf "\nPERFORMING WARMUP\n"
+	run 256 $time 
+	}
+
+ulimit -n 10000
+dyni -stop
+
+printf "\nTEST WITHOUT DYNIMIZE\n"
+service mysql restart
+warmup
+warmup
+runAll
+
+printf "\nTEST WITH DYNIMIZE\n"
+service mysql restart
+warmup
+dyni -start
+warmup
+dyni -stop
+runAll
+
